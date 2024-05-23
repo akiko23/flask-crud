@@ -115,6 +115,40 @@ returning id
     return '', 204
 
 
+@app.get('/recipes/find_by_title')
+def get_film_by_title():
+    title = request.args.get('title')
+
+    query = SQL("""
+select id, title, description, category
+from kitchen_api_data.recipes
+where title ilike {title}
+""").format(title=Literal('%' + title + '%'))
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+    return result
+
+
+@app.get('/recipes/find_by_category')
+def get_recipes_by_category():
+    category = request.args.get('category')
+
+    query = SQL("""
+select id, title, description, category
+from kitchen_api_data.recipes
+where category ilike {category}
+""").format(category=Literal(category))
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+    return result
+
+
 @app.delete('/recipes/<uuid:id>')
 def delete_recipe(id: uuid.UUID):
     delete_recipe_stmt = SQL("delete from kitchen_api_data.recipes where id = {id} returning id").format(
